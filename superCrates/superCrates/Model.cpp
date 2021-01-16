@@ -19,10 +19,17 @@ void Model::setPosition(float x, float y, float z)
 	position.z = z;
 }
 
+void Model::RotateObject(float angle)
+{
+	transform = glm::rotate(transform, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+
+
 void Model::update(float delta)
 {
 	transform = glm::mat4(1);
 	transform = glm::translate(transform, position);
-	//transform = glm::rotate(transform, rotAngle += 2.0f * delta, glm::vec3(0.0f, 1.0f, 0.0f));
+//	transform = glm::rotate(transform, rotAngle += 2.0f * delta, glm::vec3(0.0f, 1.0f, 0.0f));
 	transform = glm::scale(transform, glm::vec3(0.25f, 0.25f, 0.25f));
 }

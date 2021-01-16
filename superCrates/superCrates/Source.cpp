@@ -70,13 +70,12 @@ int main() {
 	objLoader.LoadFromFile("./Assets/Stall/stall.obj");
 	int modelVAO = loader.loadModel(objLoader.getVertices(), objLoader.getNormals(), objLoader.getTexCoords(), objLoader.getFaceVertices());
 	Mesh stall(modelVAO, objLoader.getFaceVertices().size() / 3);
-	//objLoader.clear();
 
 	Texture textureID(imageTexture), cubeTexture(cubeID), stallTexture(stallID);
 
 
 	Camera camera(45.0f, wManager.WIDTH / wManager.HEIGHT, 0.1f, 100.0f,
-		glm::vec3(0.0f, 1.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 3.0f, 0.05f);
+		glm::vec3(0.0f, 1.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 3.0f, 0.1f);
 	Plane plane;
 	Model cube(cubeVAO);
 	Model cube1(cubeVAO);
@@ -86,13 +85,13 @@ int main() {
 	Model cube5(cubeVAO);
 
 	Model stallModel(modelVAO);
+	stallModel.RotateObject(180.0f);
 	cube.setPosition(0.3f, 0.1f, 0.0f);
 	cube1.setPosition(-0.3f, 0.1f, 0.0f);
 	cube2.setPosition(0.3f, 0.1f, -0.2f);
-	cube3.setPosition(0.7f, 0.1f, 0.0f);
+	cube3.setPosition(-0.3f, 0.1f, 0.2f);
 	cube4.setPosition(0.7f, 0.1f, -0.0f);
 	cube5.setPosition(-0.7f, 0.1f, -0.2f);
-
 
 	stallModel.setPosition(0.0f, 0.0f, 0.0f);
 
@@ -147,10 +146,11 @@ int main() {
 		glDrawArrays(GL_TRIANGLES, 0, 288);
 
 		stallModel.update(wManager.getDelta());
+		stallModel.RotateObject(180.0f);
 		renderMesh(stallModel, shader, camera, light, material);
 		glBindTexture(GL_TEXTURE_2D, stallID);
 		glBindVertexArray(modelVAO);
-		glDrawElements(GL_TRIANGLES, stall.getnumIndices(), GL_UNSIGNED_INT ,0 );
+		glDrawElements(GL_TRIANGLES, stall.getnumIndices() * 3, GL_UNSIGNED_INT ,0 );
 
 		glUseProgram(lightShader.lightShaderProg);
 		renderLight(light, lightShader, camera);

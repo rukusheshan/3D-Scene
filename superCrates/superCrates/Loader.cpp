@@ -72,21 +72,21 @@ int Loader::loadModel(vector<float> vertices, vector<float> normals, vector<floa
 	glGenBuffers(1, &VBO_V);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_V);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),&vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,  sizeof(glm::vec3), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,  0, (void*)0);
 	glEnableVertexAttribArray(0);
 
 
 	glGenBuffers(1, &VBO_T);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_T);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texCoords.size(), &texCoords[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,  sizeof(glm::vec2), (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,  0, (void*)0);
 	glEnableVertexAttribArray(1);
 
 
 	glGenBuffers(1, &VBO_N);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_N);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * normals.size(), &normals[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(2);
 
 	glGenBuffers(1, &EBO);

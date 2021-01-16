@@ -10,6 +10,7 @@ public:
 	~Model();
 
 	void setPosition(float x, float y, float z);
+	void RotateObject(float angle);
 	void update(float delta);
 
 	glm::mat4& getTransform() {

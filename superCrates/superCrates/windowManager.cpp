@@ -4,6 +4,9 @@
 
 windowManager::windowManager()
 {
+	mouseFirstMoved = true;
+	lastX = WIDTH / 2;
+	lastY = HEIGHT / 2;
 	prevTime = 0.0f;
 	xChange = 0.0f;
 	yChange = 0.0f;
@@ -87,6 +90,7 @@ void windowManager::CreateCallBacks()
 {
 	glfwSetKeyCallback(window, HandleKeys);
 	glfwSetCursorPosCallback(window, HandleMouse);
+	glfwSetWindowSizeCallback(window, HandleWindow);
 }
 
 void windowManager::HandleKeys(GLFWwindow* window, int key, int code, int action, int mode)
@@ -121,4 +125,9 @@ void windowManager::HandleMouse(GLFWwindow* window, double xPos, double yPos)
 	theWindow->lastX = xPos;
 	theWindow->lastY = yPos;
 
+}
+
+ void windowManager::HandleWindow(GLFWwindow* window, int width, int height)
+{
+	 glViewport(0, 0, width, height);
 }
