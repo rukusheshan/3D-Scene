@@ -6,7 +6,7 @@ superCrates/Assets - has all the textures and model for the project.
 superCrates/Shaders - has two shader file vertex and fragment shader.
 
 Camera class has implementation of a flexible camera.
-Shader class reads the shader file from the shader file, compiles and returns the shader ID.
+Shader class creates the shader file.
 Loader class handles the creation of openGL buffers and loads shader, texture and buffer.
 OBJLoader file reads the OBJ file .
 windowManager handles all the window operations.
