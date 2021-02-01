@@ -1,7 +1,5 @@
 #include "windowManager.h"
 
-
-
 windowManager::windowManager()
 {
 	mouseFirstMoved = true;
@@ -18,6 +16,8 @@ windowManager::windowManager()
 
 windowManager::~windowManager()
 {
+	glfwDestroyWindow(window);
+	glfwTerminate();
 }
 
 void windowManager::init()
@@ -91,6 +91,7 @@ void windowManager::CreateCallBacks()
 	glfwSetKeyCallback(window, HandleKeys);
 	glfwSetCursorPosCallback(window, HandleMouse);
 	glfwSetWindowSizeCallback(window, HandleWindow);
+	glfwSetScrollCallback(window, HandleScroll);
 }
 
 void windowManager::HandleKeys(GLFWwindow* window, int key, int code, int action, int mode)
@@ -131,3 +132,9 @@ void windowManager::HandleMouse(GLFWwindow* window, double xPos, double yPos)
 {
 	 glViewport(0, 0, width, height);
 }
+
+ void windowManager::HandleScroll(GLFWwindow* window, double xOffset, double yOffSet)
+ {
+	 Camera camera;
+	 camera.ProcessScroll(yOffSet);
+ }

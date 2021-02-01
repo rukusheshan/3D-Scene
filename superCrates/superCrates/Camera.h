@@ -16,6 +16,7 @@ public:
 	glm::mat4& getCombined() {
 		return combined;
 	}
+	void ProcessScroll(float yOffSet);
 	void KeyControl(bool* keys, GLfloat deltaTime);
 	void MouseControl(GLfloat xChange, GLfloat yChange);
 	glm::vec3 getCameraPosition();

@@ -2,7 +2,7 @@
 #include<GL/glew.h>
 #include<GLFW/glfw3.h>
 #include<iostream>
-
+#include"Camera.h"
 class windowManager
 {
 public:
@@ -33,5 +33,6 @@ private:
 	static void HandleKeys(GLFWwindow* window, int key, int code, int action, int mode);
 	static void HandleMouse(GLFWwindow* window, double xPos, double yPos);
 	static void HandleWindow(GLFWwindow* window, int width, int height);
+	static void HandleScroll(GLFWwindow* window, double xOffset, double yOffSet);
 };
 

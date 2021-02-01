@@ -13,5 +13,5 @@ void main()
 	fragPos = vec3(transform * vec4(aPos, 1.0));
 	passUV = uv;
 	Normal = aNormal;
-	gl_Position = combined * transform * vec4(fragPos, 1.0);
+	gl_Position = combined * vec4(fragPos, 1.0);
 }

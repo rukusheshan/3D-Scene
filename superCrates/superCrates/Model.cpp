@@ -1,10 +1,9 @@
 #include "Model.h"
 
 
-Model::Model(unsigned int vaoID):
-	Mesh(vaoID, 0)
+Model::Model()
 {
-	//setPosition(0.3f, 0.1f, 0.0f);
+	setPosition(0.0f, 0.0f, 0.0f);
 }
 
 
@@ -21,15 +20,15 @@ void Model::setPosition(float x, float y, float z)
 
 void Model::RotateObject(float angle)
 {
-	transform = glm::rotate(transform, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotAngle = angle;
 }
-
 
 
 void Model::update(float delta)
 {
 	transform = glm::mat4(1);
+	transform = glm::rotate(transform, rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 	transform = glm::translate(transform, position);
-//	transform = glm::rotate(transform, rotAngle += 2.0f * delta, glm::vec3(0.0f, 1.0f, 0.0f));
-	transform = glm::scale(transform, glm::vec3(0.25f, 0.25f, 0.25f));
+//	transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
 }
+

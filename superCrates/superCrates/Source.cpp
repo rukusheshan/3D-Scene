@@ -3,8 +3,6 @@
 #include "Shader.h"
 #include "Loader.h"
 #include "Model.h"
-#include "Plane.h"
-#include "Texture.h"
 #include "Light.h"
 #include "LightShader.h"
 #include "Material.h"
@@ -30,133 +28,105 @@ void renderLight(Light light, LightShader lightShader, Camera camera) {
 	glUniformMatrix4fv(lightShader.transformLoc, 1, GL_FALSE, glm::value_ptr(light.getTransform()));
 	glUniformMatrix4fv(lightShader.combinedLoc, 1, GL_FALSE, glm::value_ptr(camera.getCombined()));
 }
-
-void renderPlane(Plane plane, Shader shader, Camera camera, Light light, Material material) {
-	glUniformMatrix4fv(shader.transformLoc, 1, GL_FALSE, glm::value_ptr(plane.getTransform()));
+void renderMesh(Model *model, Shader shader, Camera camera, Light light, Material material) {
+	glUniformMatrix4fv(shader.transformLoc, 1, GL_FALSE, glm::value_ptr(model->getTransform()));
 	glUniformMatrix4fv(shader.combinedLoc, 1, GL_FALSE, glm::value_ptr(camera.getCombined()));
 	glUniform3f(shader.viewPosLoc, camera.position.x, camera.position.y, camera.position.z);
 	floatUniforms(light, material, shader);
-}
-
-void renderMesh(Model model, Shader shader, Camera camera, Light light, Material material) {
-	glUniformMatrix4fv(shader.transformLoc, 1, GL_FALSE, glm::value_ptr(model.getTransform()));	
-	glUniformMatrix4fv(shader.combinedLoc, 1, GL_FALSE, glm::value_ptr(camera.getCombined()));
-	glUniform3f(shader.viewPosLoc, camera.position.x, camera.position.y, camera.position.z); 
-	floatUniforms(light, material, shader);
+	for (auto m : model->getMeshes()) {
+		glBindVertexArray(m->getVAO());
+		glBindTexture(GL_TEXTURE_2D, m->getTextureID());
+		glDrawElements(GL_TRIANGLES, m->getnumIndices(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
 }
 
 windowManager wManager; 
 const char* vertexFile = "Shaders/vertexShader.txt";
 const char* fragmentFile = "Shaders/fragmentShader.txt";
-
+float fov = 45.0f;
 int main() {
 	wManager.WIDTH = 900;
 	wManager.HEIGHT = 600;
 	wManager.init();
+
 	MeshBuilder meshbuilder;
 	Shader shader(vertexFile, fragmentFile);
-	Loader loader;
 	Light light;
 	Material material;
 	LightShader lightShader;
-	OBJLoader objLoader;
-	
-	int VAO = loader.loadPlane(meshbuilder.plane, 32, meshbuilder.indices, 6);
-	int cubeVAO = loader.loadCube(meshbuilder.cube, 288);
-	int imageTexture = loader.loadTexture("./Assets/images.jpg");
-	int cubeID = loader.loadTexture("./Assets/awesomeface.png");
-	int stallID = loader.loadTexture("./Assets/Stall/stallTexture.png");
 
-	objLoader.LoadFromFile("./Assets/Stall/stall.obj");
-	int modelVAO = loader.loadModel(objLoader.getVertices(), objLoader.getNormals(), objLoader.getTexCoords(), objLoader.getFaceVertices());
-	Mesh stall(modelVAO, objLoader.getFaceVertices().size() / 3);
-
-	Texture textureID(imageTexture), cubeTexture(cubeID), stallTexture(stallID);
-
-
-	Camera camera(45.0f, wManager.WIDTH / wManager.HEIGHT, 0.1f, 100.0f,
+	Camera camera(fov, wManager.WIDTH / wManager.HEIGHT, 0.1f, 100.0f,
 		glm::vec3(0.0f, 1.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 3.0f, 0.1f);
-	Plane plane;
-	Model cube(cubeVAO);
-	Model cube1(cubeVAO);
-	Model cube2(cubeVAO);
-	Model cube3(cubeVAO);
-	Model cube4(cubeVAO);
-	Model cube5(cubeVAO);
 
-	Model stallModel(modelVAO);
-	stallModel.RotateObject(180.0f);
-	cube.setPosition(0.3f, 0.1f, 0.0f);
-	cube1.setPosition(-0.3f, 0.1f, 0.0f);
-	cube2.setPosition(0.3f, 0.1f, -0.2f);
-	cube3.setPosition(-0.3f, 0.1f, 0.2f);
-	cube4.setPosition(0.7f, 0.1f, -0.0f);
-	cube5.setPosition(-0.7f, 0.1f, -0.2f);
+	Loader loader;
+	LoaderData planeData = loader.CreateMesh(meshbuilder.plane, 32, meshbuilder.indices, 6);
+	LoaderData cubeData = loader.CreateMesh(meshbuilder.cubeVertices, 192, meshbuilder.cubeIndices, 36);
+	vector<LoaderData> stallData = loader.LoadModel("./Assets/Stall/stall.obj");
+	
+	planeData.textureID = loader.LoadTexture("./Assets/images.jpg");
+	cubeData.textureID = loader.LoadTexture("./Assets/awesomeface.png");
+	stallData[0].textureID = loader.LoadTexture("./Assets/Stall/stallTexture.png");
+	
+	vector<Model*> models;
+	Model stallModel;
+	for (auto d : stallData) {
+		stallModel.addMesh(new Mesh(d.vao, d.indexCount, d.ebo, d.textureID));
+		stallModel.RotateObject(180.0f);
+	}
+	models.push_back(&stallModel);
 
-	stallModel.setPosition(0.0f, 0.0f, 0.0f);
+	Model plane, cubes[6];
+	plane.addMesh(new Mesh(planeData.vao, planeData.indexCount, planeData.ebo, planeData.textureID));
+	cubes[0].addMesh(new Mesh(cubeData.vao, cubeData.indexCount, cubeData.ebo, cubeData.textureID));
+	cubes[1].addMesh(new Mesh(cubeData.vao, cubeData.indexCount, cubeData.ebo, cubeData.textureID));
+	cubes[2].addMesh(new Mesh(cubeData.vao, cubeData.indexCount, cubeData.ebo, cubeData.textureID));
+	cubes[3].addMesh(new Mesh(cubeData.vao, cubeData.indexCount, cubeData.ebo, cubeData.textureID));
+	cubes[4].addMesh(new Mesh(cubeData.vao, cubeData.indexCount, cubeData.ebo, cubeData.textureID));
+	cubes[5].addMesh(new Mesh(cubeData.vao, cubeData.indexCount, cubeData.ebo, cubeData.textureID));
+
+	cubes[0].setPosition(-3, 1.25, 0.0);
+	cubes[1].setPosition(-5, 0.25, 1.0);
+	cubes[2].setPosition(2, 1.0, -6.0);
+	cubes[3].setPosition(2, 1.0, 6.0);
+	cubes[4].setPosition(7, 0.25, 1.0);
+	cubes[5].setPosition(-7, 1, -9.0);
+	
+	models.push_back(&plane);
+	
+	for(int i = 0; i < 6 ;i++)
+		models.push_back(&cubes[i]);
 
 	do {
 		wManager.preRender();
 		wManager.calculateDelta();
-
 		camera.KeyControl(wManager.getKeys(), wManager.getDelta());
 		camera.MouseControl(wManager.getXChange(), wManager.getYChange());
 
 		shader.start();
-		plane.update();
-		renderPlane(plane, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, imageTexture);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	
-		cube.update(wManager.getDelta());
-		renderMesh(cube, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, cubeID);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 288);
-
-		cube1.update(wManager.getDelta());
-		renderMesh(cube1, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, cubeID);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 288);
-
-		cube2.update(wManager.getDelta());
-		renderMesh(cube2, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, cubeID);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 288);
-
-		cube3.update(wManager.getDelta());
-		renderMesh(cube3, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, cubeID);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 288);
-
-		cube4.update(wManager.getDelta());
-		renderMesh(cube4, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, cubeID);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 288);
-
-		cube5.update(wManager.getDelta());
-		renderMesh(cube5, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, cubeID);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 288);
-
-		stallModel.update(wManager.getDelta());
-		stallModel.RotateObject(180.0f);
-		renderMesh(stallModel, shader, camera, light, material);
-		glBindTexture(GL_TEXTURE_2D, stallID);
-		glBindVertexArray(modelVAO);
-		glDrawElements(GL_TRIANGLES, stall.getnumIndices() * 3, GL_UNSIGNED_INT ,0 );
+	
+		for (auto m : models) {
+			m->update(wManager.getDelta());
+		}
+		for (auto m : models) {
+			renderMesh(m, shader, camera, light, material);
+		}
 
 		glUseProgram(lightShader.lightShaderProg);
 		renderLight(light, lightShader, camera);
-		glBindVertexArray(cubeVAO);
+		glBindVertexArray(cubeData.vao);
 	//	glDrawArrays(GL_TRIANGLES, 0, 288);
 		glUseProgram(0);
 	    wManager.update();
 	} while (wManager.closeNotRequested());
+}
+
+void HandleScroll(GLFWwindow* window, double xOffset, double yOffSet)
+{
+	fov -= (float)yOffSet;
+	if (fov < 1.0f)
+		fov = 1.0f;
+	if (fov > 45.0f)
+		fov = 45.0f;
 }

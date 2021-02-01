@@ -2,45 +2,13 @@
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
-	vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
-	fragmemtShaderID = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
+	vertexShaderID = loader.loadShader(vertexFile, GL_VERTEX_SHADER);
+	fragmemtShaderID = loader.loadShader(fragmentFile, GL_FRAGMENT_SHADER);
 
 	m_ShaderID = shaderLinker();
 	
 }
 
-int Shader::loadShader(const char* fileName, int type)
-{
-	std::string ShaderCode;
-	std::ifstream ShaderStream(fileName, std::ios::in);
-	if (ShaderStream.is_open()) {
-		std::string Line = "";
-		while (getline(ShaderStream, Line))
-			ShaderCode += "\n" + Line;
-		ShaderStream.close();
-	}
-	else {
-		printf("Impossible to open %s", fileName);
-		getchar();
-		return 0;
-	}
-
-	printf("Compiling Shader : %s\n", fileName);
-	int	ShaderID = glCreateShader(type);
-	char const* SourcePointer = ShaderCode.c_str();
-	glShaderSource(ShaderID, 1, &SourcePointer, NULL);
-	glCompileShader(ShaderID);
-
-	int success;
-	char infoLog[512];
-	glGetShaderiv(ShaderID, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(ShaderID, 512, NULL, infoLog);
-		std::cout << "Vertex shader compilation failed" << infoLog << std::endl;
-	}
-
-	return ShaderID;
-}
 void Shader::start()
 {
 	glUseProgram(shaderProgram);

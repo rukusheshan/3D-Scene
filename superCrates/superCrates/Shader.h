@@ -4,6 +4,8 @@
 #include<fstream>
 #include<string>
 
+#include "Loader.h"
+
 class Shader
 {
 	int m_ShaderID = -1;
@@ -14,7 +16,6 @@ public:
 	~Shader();
 
 	unsigned int shaderProgram;
-	int loadShader(const char* fileName, int type); 
 	int transformLoc, combinedLoc, viewPosLoc,
 		ambLoc, diffLoc, specLoc,
 		lightPosLoc, ambLightLoc, diffLightLoc, specLightLoc,
@@ -22,5 +23,7 @@ public:
 	void start();
 	int shaderLinker();
 	void bindAttributes();
+private:
+	Loader loader;
 };
 

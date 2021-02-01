@@ -33,6 +33,15 @@ void Camera::Update()
 	combined = projection * CalculateViewMatrix();
 }
 
+void Camera::ProcessScroll(float yOffSet)
+{
+	fov -= (float)yOffSet;
+	if (fov < 1.0f)
+		fov = 1.0f;
+	if (fov > 45.0f)
+		fov = 45.0f;
+}
+
 void Camera::KeyControl(bool* keys, GLfloat deltaTime)
 {
 	GLfloat velocity = moveSpeed * deltaTime;
